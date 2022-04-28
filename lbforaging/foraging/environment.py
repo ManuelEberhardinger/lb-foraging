@@ -202,16 +202,16 @@ class ForagingEnv(Env):
     def neighborhood(self, row, col, distance=1, ignore_diag=False):
         if not ignore_diag:
             return self.field[
-                max(row - distance, 0) : min(row + distance + 1, self.rows),
-                max(col - distance, 0) : min(col + distance + 1, self.cols),
+                max(row - distance, 0): min(row + distance + 1, self.rows),
+                max(col - distance, 0): min(col + distance + 1, self.cols),
             ]
 
         return (
             self.field[
-                max(row - distance, 0) : min(row + distance + 1, self.rows), col
+                max(row - distance, 0): min(row + distance + 1, self.rows), col
             ].sum()
             + self.field[
-                row, max(col - distance, 0) : min(col + distance + 1, self.cols)
+                row, max(col - distance, 0): min(col + distance + 1, self.cols)
             ].sum()
         )
 
@@ -414,7 +414,7 @@ class ForagingEnv(Env):
             for player in self.players:
                 player_x, player_y = player.position
                 agents_layer[player_x + self.sight, player_y + self.sight] = player.level
-            
+
             foods_layer = np.zeros(grid_shape, dtype=np.float32)
             foods_layer[self.sight:-self.sight, self.sight:-self.sight] = self.field.copy()
 
@@ -432,12 +432,12 @@ class ForagingEnv(Env):
             foods_x, foods_y = self.field.nonzero()
             for x, y in zip(foods_x, foods_y):
                 access_layer[x + self.sight, y + self.sight] = 0.0
-            
+
             return np.stack([agents_layer, foods_layer, access_layer])
 
         def get_agent_grid_bounds(agent_x, agent_y):
             return agent_x, agent_x + 2 * self.sight + 1, agent_y, agent_y + 2 * self.sight + 1
-        
+
         def get_player_reward(observation):
             for p in observation.players:
                 if p.is_self:
@@ -453,13 +453,11 @@ class ForagingEnv(Env):
         nreward = [get_player_reward(obs) for obs in observations]
         ndone = [obs.game_over for obs in observations]
         # ninfo = [{'observation': obs} for obs in observations]
-        ninfo = {}
-        
+        ninfo = {'player_pos': [player.position for player in self.players]}
         # check the space of obs
-        for i, obs in  enumerate(nobs):
+        for i, obs in enumerate(nobs):
             assert self.observation_space[i].contains(obs), \
                 f"obs space error: obs: {obs}, obs_space: {self.observation_space[i]}"
-        
         return nobs, nreward, ndone, ninfo
 
     def reset(self):
@@ -476,6 +474,9 @@ class ForagingEnv(Env):
 
         nobs, _, _, _ = self._make_gym_obs()
         return nobs
+
+    def get_player_pos_info(self):
+        return {'player_pos': [player.position for player in self.players]}
 
     def step(self, actions):
         self.current_step += 1
