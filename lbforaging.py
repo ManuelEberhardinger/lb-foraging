@@ -38,8 +38,8 @@ def _game_loop(env, render):
     print(env.players[0].score, env.players[1].score)
 
 
-def main(game_count=1, render=False):
-    env = gym.make("Foraging-grid-10x10-2p-4f-coop-v2")
+def main(env_name, game_count=1, render=False):
+    env = gym.make(env_name)
     obs = env.reset()
 
     for episode in range(game_count):
@@ -53,6 +53,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--times", type=int, default=1, help="How many times to run the game"
     )
+    parser.add_argument(
+        "--env", type=str, default="Foraging-grid-10x10-5p-5f-v2", help="The env to run"
+    )
 
     args = parser.parse_args()
-    main(args.times, args.render)
+    main(args.env, args.times, args.render)
